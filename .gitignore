@@ -1,0 +1,25 @@
+# 依赖
+node_modules/
+
+# 运行时数据：本地数据库、自动备份、日志 —— 不要入库
+data/
+logs/
+
+# 浏览器 E2E 临时文件
+.edge-profile/
+.edge-cdp/
+
+# 临时文件
+*.tmp
+.tmp/
+
+# 截图工作目录（预览图 docs/preview-*.png 仍保留入库，供 README 引用）
+docs/shots/
+docs/account-shots/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+
+# WorkBuddy 项目内部数据（记忆/日志，不入库）
+.workbuddy/

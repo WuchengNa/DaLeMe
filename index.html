@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#fffaf5" />
+    <meta
+      name="description"
+      content="大了么 —— 训练计划与训练记录 Web 应用。登录后记录每一组重量，计划、记录、复盘，每一次都算数。"
+    />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>大了么 · 训练记录</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23ff9b3f'/%3E%3Cpath d='M13 26H51M32 12V36M32 36L14 54M32 36L50 54' stroke='%232a1103' stroke-width='7' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E"
+    />
+    <script src="./assets/js/theme.js"></script>
+    <link rel="stylesheet" href="./assets/css/styles.css" />
+  </head>
+  <body class="auth-mode">
+    <div class="app-shell">
+      <aside class="sidebar" id="sidebar" aria-label="侧边导航"></aside>
+      <header class="mobile-topbar" id="mobile-topbar"></header>
+      <main class="main">
+        <div class="main-inner" id="view">
+          <div class="boot-screen" aria-label="正在验证登录状态">
+            <span class="logo-mark"><svg viewBox="0 0 32 32" fill="none"><path d="M6 13h20M16 6v12M16 18L7 27M16 18l9 9" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+            <p>正在验证登录状态…</p>
+          </div>
+        </div>
+      </main>
+      <nav class="bottom-nav" id="bottom-nav" aria-label="底部导航"></nav>
+    </div>
+    <div id="overlay-root"></div>
+    <div id="toast-root" aria-live="polite"></div>
+    <noscript>
+      <div style="padding:40px;text-align:center;font-family:sans-serif">
+        大了么需要启用 JavaScript 才能运行。
+      </div>
+    </noscript>
+    <script type="module" src="./assets/js/app.js"></script>
+  </body>
+</html>

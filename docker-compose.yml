@@ -1,0 +1,18 @@
+services:
+  daleme:
+    build: .
+    image: daleme:latest
+    container_name: daleme
+    restart: unless-stopped
+    ports:
+      - "4173:4173"
+    environment:
+      # HTTPS 反代后部署时设为 1（开启 Secure Cookie 与 HSTS）
+      COOKIE_SECURE: "0"
+      # 若 Nginx/Caddy 反代在前面，设为 1 以记录真实客户端 IP 并正确限流
+      TRUST_PROXY: "0"
+      LOG_LEVEL: info
+      BACKUP_KEEP: "7"
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
