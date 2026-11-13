@@ -4,6 +4,14 @@
   "private": true,
   "type": "module",
   "description": "大了么 —— 本地优先的训练计划与训练记录 Web 应用",
+  "license": "CC-BY-NC-SA-4.0",
+  "licenses": [
+    {
+      "type": "CC-BY-NC-SA-4.0",
+      "url": "https://creativecommons.org/licenses/by-nc-sa/4.0/"
+    }
+  ],
+  "author": "大了么 (DALEME) project contributors",
   "scripts": {
     "start": "node --no-warnings server.mjs",
     "dev": "node --no-warnings server.mjs",

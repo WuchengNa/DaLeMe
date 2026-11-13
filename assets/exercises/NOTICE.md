@@ -36,4 +36,10 @@ allow** — cloning this repo is not a license.
 
 The exercise **data** (names, categories, body parts, equipment, targets,
 muscle groups, and multilingual instructions) is separate from the media and
-is released under the MIT License — see [`LICENSE`](LICENSE).
+is released under the MIT License — see [`LICENSE.txt`](LICENSE.txt).
+
+> Note: The MIT license in `LICENSE.txt` covers **only the dataset's text/data
+> and tooling**. The overall 大了么 (DALEME) project that bundles this dataset
+> is released under a **different** license (CC BY-NC-SA 4.0) — see the root
+> `LICENSE` file. The dataset's MIT terms and the project's CC BY-NC-SA 4.0
+> terms are independent; neither overrides the other.

@@ -124,6 +124,14 @@ node scripts/import-exercises.mjs ./exercises-dataset
 
 > ⚠️ **版权提示**：动作**数据**（名称、分类、说明文本）为 MIT 许可，但 **GIF / 缩略图版权归 [Gym visual](https://gymvisual.com/) 所有**，上游以 180×180 分辨率经授权分发。本项目已在动作库与详情页保留 `© Gym visual` 署名，并随附 `NOTICE.md` / `LICENSE.txt`。**用于公开部署或商业用途前，请自行阅读 [Gym visual 使用条款](https://gymvisual.com/content/3-terms-and-conditions-of-use) 并取得相应授权**；克隆上游仓库本身不等于获得媒体授权。
 
+## 许可证
+
+- **本项目（代码 / UI / 原创内容）**：[CC BY-NC-SA 4.0](LICENSE) —— **禁止商用**，可分享与改编（须署名、相同方式共享）。商业使用请联系作者取得单独授权。
+- **动作数据集（文本 / 数据）**：MIT 许可，见 [`assets/exercises/LICENSE.txt`](assets/exercises/LICENSE.txt)。
+- **动作媒体（GIF / 缩略图）**：© Gym visual，需另行取得授权，见 [`assets/exercises/NOTICE.md`](assets/exercises/NOTICE.md) 与 [`THIRD-PARTY.md`](THIRD-PARTY.md)。
+
+详细的许可层级与合规建议见 [THIRD-PARTY.md](THIRD-PARTY.md)。
+
 ## 生产部署
 
 ### 前端资源缓存与更新
