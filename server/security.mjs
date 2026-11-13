@@ -10,6 +10,20 @@ export class HttpError extends Error {
 }
 
 /**
+ * 根据请求判断连接是否真正走 HTTPS。
+ * - 直连 TLS 时 req.socket.encrypted 为 true；
+ * - 经 Nginx 等反代时，由 X-Forwarded-Proto 透传。
+ * 用「真实协议」来决定会话 Cookie 是否带 Secure 标记，
+ * 避免 HTTP 部署下 Secure Cookie 被浏览器丢弃导致登录后立即掉线。
+ */
+export function isSecureRequest(req) {
+  if (req?.socket?.encrypted) return true;
+  const proto = req?.headers?.['x-forwarded-proto'];
+  if (proto) return String(proto).split(',')[0].trim().toLowerCase() === 'https';
+  return false;
+}
+
+/**
  * 客户端 IP：默认取 socket 地址；TRUST_PROXY=1 时信任反向代理的
  * X-Forwarded-For 链路（取最左侧由客户端发起的地址）。
  */
@@ -81,12 +95,20 @@ export function checkOrigin(req) {
   if (!['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) return;
   const origin = req.headers.origin;
   if (!origin) return;
+  let originHost;
   try {
-    if (new URL(origin).host !== req.headers.host) {
-      throw new HttpError(403, '非法请求来源', 'BAD_ORIGIN');
-    }
-  } catch (error) {
-    if (error instanceof HttpError) throw error;
+    originHost = new URL(origin).host;
+  } catch {
+    throw new HttpError(403, '非法请求来源', 'BAD_ORIGIN');
+  }
+  /* 直接连接时用 Host 头比对；经可信反代时，Host 可能被改写为上游地址
+     （如 127.0.0.1:4173），此时额外信任 X-Forwarded-Host 透传的公网主机名，
+     避免合法的跨端口/反代请求被误判为非法来源（403）。 */
+  const candidates = [req.headers.host];
+  if (config.trustProxy && req.headers['x-forwarded-host']) {
+    candidates.push(req.headers['x-forwarded-host']);
+  }
+  if (!candidates.some((h) => h && h === originHost)) {
     throw new HttpError(403, '非法请求来源', 'BAD_ORIGIN');
   }
 }
@@ -104,14 +126,16 @@ const CSP = [
 ].join('; ');
 
 /** 通用安全响应头（所有响应统一下发） */
-export function applySecurityHeaders(res) {
+export function applySecurityHeaders(res, req) {
   const headers = {
     'X-Content-Type-Options': 'nosniff',
     'Referrer-Policy': 'same-origin',
     'X-Frame-Options': 'DENY',
   };
   if (config.csp) headers['Content-Security-Policy'] = CSP;
-  if (config.cookieSecure) {
+  /* HSTS 仅在真正走 HTTPS 时下发；明文 HTTP 响应上的 HSTS 会被浏览器忽略，
+     且此时应允许 HTTP 访问（个人/内网部署常见），故不再依赖静态开关。 */
+  if (config.cookieSecure && req && isSecureRequest(req)) {
     headers['Strict-Transport-Security'] = 'max-age=15552000; includeSubDomains';
   }
   for (const [key, value] of Object.entries(headers)) res.setHeader(key, value);

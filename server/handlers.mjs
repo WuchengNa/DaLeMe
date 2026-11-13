@@ -18,6 +18,7 @@ import {
   checkOrigin,
   clientIp,
   failureGuard,
+  isSecureRequest,
   rateLimit,
 } from './security.mjs';
 import { log } from './logger.mjs';
@@ -125,7 +126,7 @@ async function handleRegister(req, res) {
   const remember = body?.remember === true;
   log.info('user.registered', { userId: id, ip: clientIp(req), remember });
   return sendJson(res, 201, { ok: true, user: publicUser(row), cloud: null }, {
-    'Set-Cookie': sessionCookie(session.token, remember ? undefined : null),
+    'Set-Cookie': sessionCookie(session.token, remember ? undefined : null, isSecureRequest(req)),
   });
 }
 
@@ -147,7 +148,7 @@ async function handleLogin(req, res) {
   const remember = body?.remember === true;
   log.info('auth.login', { userId: row.id, ip: clientIp(req), remember });
   return sendJson(res, 200, { ok: true, user: publicUser(row), cloud: null }, {
-    'Set-Cookie': sessionCookie(session.token, remember ? undefined : null),
+    'Set-Cookie': sessionCookie(session.token, remember ? undefined : null, isSecureRequest(req)),
   });
 }
 
@@ -174,7 +175,7 @@ async function handleLogoutAll(req, res) {
   const user = requireUser(req);
   stmt.deleteAllSessionsByUser.run(user.id);
   log.info('auth.logout_all', { userId: user.id, ip: clientIp(req) });
-  return sendJson(res, 200, { ok: true }, { 'Set-Cookie': sessionCookie('', 0) });
+  return sendJson(res, 200, { ok: true }, { 'Set-Cookie': sessionCookie('', 0, isSecureRequest(req)) });
 }
 
 async function handleDeleteAccount(req, res) {
@@ -186,7 +187,7 @@ async function handleDeleteAccount(req, res) {
   if (!ok) throw new HttpError(401, '密码不正确', 'INVALID_CREDENTIALS');
   stmt.deleteUser.run(user.id); /* 级联删除会话与云端数据 */
   log.warn('account.deleted', { userId: user.id, ip: clientIp(req) });
-  return sendJson(res, 200, { ok: true }, { 'Set-Cookie': sessionCookie('', 0) });
+  return sendJson(res, 200, { ok: true }, { 'Set-Cookie': sessionCookie('', 0, isSecureRequest(req)) });
 }
 
 /* ---------------- 头像 ---------------- */
@@ -278,7 +279,7 @@ export async function handleApi(req, res, url) {
     checkOrigin(req);
     const user = getUserFromRequest(req);
     if (user) stmt.deleteSession.run(user.tokenHash);
-    return sendJson(res, 200, { ok: true }, { 'Set-Cookie': sessionCookie('', 0) });
+    return sendJson(res, 200, { ok: true }, { 'Set-Cookie': sessionCookie('', 0, isSecureRequest(req)) });
   }
 
   if (pathname === '/api/auth/logout-all' && method === 'POST') {

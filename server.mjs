@@ -22,7 +22,7 @@ const server = createServer(async (req, res) => {
     });
   });
 
-  applySecurityHeaders(res);
+  applySecurityHeaders(res, req);
   try {
     const url = new URL(req.url || '/', `http://${req.headers.host || config.host}`);
     if (url.pathname.startsWith('/api/')) {

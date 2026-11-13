@@ -3,7 +3,7 @@ import { createHash, randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
 import { promisify } from 'node:util';
 import { config } from './config.mjs';
 import { stmt } from './db.mjs';
-import { HttpError } from './security.mjs';
+import { HttpError, isSecureRequest } from './security.mjs';
 
 const SESSION_MAX_AGE = config.sessionDays * 24 * 60 * 60;
 const scryptAsync = promisify(scrypt);
@@ -53,8 +53,13 @@ export function createSession(userId) {
 /**
  * maxAge === null 表示「会话级 Cookie」：不带 Max-Age / Expires，
  * 浏览器关闭后即失效，用于「每次打开都需要登录」。
+ *
+ * secure 默认取静态配置 config.cookieSecure，但调用方应传入
+ * isSecureRequest(req) 的结果，使 Cookie 的 Secure 标记与「真实连接协议」
+ * 一致：HTTPS 连接下发 Secure Cookie（可被保存），HTTP 连接下发非 Secure
+ * Cookie（避免浏览器在明文页面上直接丢弃导致登录后立即掉线）。
  */
-export function sessionCookie(token, maxAge = SESSION_MAX_AGE) {
+export function sessionCookie(token, maxAge = SESSION_MAX_AGE, secure = config.cookieSecure) {
   const parts = [
     `lt_session=${encodeURIComponent(token)}`,
     'Path=/',
@@ -62,7 +67,7 @@ export function sessionCookie(token, maxAge = SESSION_MAX_AGE) {
     'SameSite=Lax',
   ];
   if (maxAge !== null) parts.push(`Max-Age=${maxAge}`);
-  if (config.cookieSecure) parts.push('Secure');
+  if (secure) parts.push('Secure');
   return parts.join('; ');
 }
 
