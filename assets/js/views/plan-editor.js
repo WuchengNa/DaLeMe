@@ -1,5 +1,6 @@
 /* 计划编辑器 */
 import { BODY_PARTS, MUSCLES, PLAN_COLORS } from '../data.js';
+import { buildPlanDraft, getTemplate, templateSummary } from '../plan-templates.js';
 import {
   filterExercises, mediaMarkup, primaryName, secondaryName,
   bindMediaFallback, PICKER_LIMIT,
@@ -31,7 +32,14 @@ export default function planEditorView(ctx) {
     };
   }
 
-  let draft = source ? JSON.parse(JSON.stringify(source)) : createEmptyPlan();
+  const template = !isEdit && ctx.query?.get('template') ? getTemplate(ctx.query.get('template')) : null;
+  const templateInfo = template ? templateSummary(template) : null;
+
+  let draft = source
+    ? JSON.parse(JSON.stringify(source))
+    : template
+      ? buildPlanDraft(template)
+      : createEmptyPlan();
   let activeDayId = draft.days[0]?.id;
   let dirty = false;
 
@@ -51,12 +59,23 @@ export default function planEditorView(ctx) {
         <div class="editor-bar-left">
           <button type="button" class="icon-btn" data-editor-back aria-label="返回">${icon('arrow-left', 20)}</button>
           <div>
-            <h1>${isEdit ? '编辑计划' : '新建计划'}</h1>
+            <h1>${isEdit ? '编辑计划' : template ? '基于模板新建' : '新建计划'}</h1>
             <p>${draft.days.length} 个训练日 · ${draft.days.reduce((acc, d) => acc + d.exercises.length, 0)} 个动作</p>
           </div>
         </div>
         <button type="button" class="btn btn-primary" data-editor-save>${icon('check', 16)} 保存计划</button>
       </div>
+
+      ${template
+        ? `<div class="tpl-applied" style="--plan-color:${PLAN_COLORS.find((c) => c.id === draft.color)?.value || PLAN_COLORS[0].value}">
+            <span class="tpl-applied-icon">${icon('layers', 16)}</span>
+            <div class="tpl-applied-text">
+              <b>已套用模板「${esc(template.name)}」</b>
+              <span>${templateInfo.days} 天 · ${templateInfo.exercises} 个动作 · 每次约 ${templateInfo.minutes} 分钟，可以直接改名、换动作、调重量</span>
+            </div>
+            <a class="section-link" href="#/plans?templates=1">换模板</a>
+          </div>`
+        : ''}
 
       <section class="card editor-meta" style="--plan-color:${color}">
         <div class="editor-meta-row">
@@ -136,6 +155,7 @@ export default function planEditorView(ctx) {
       <div class="editor-tip">
         ${icon('info', 15)}
         <span>建议每个训练日安排 4–6 个动作。休息时间按动作强度设置：复合动作 120–180 秒，孤立动作 45–90 秒。</span>
+        ${!isEdit && !template ? `<a class="section-link" href="#/plans?templates=1">没思路？用模板</a>` : ''}
       </div>
 
       <div class="save-bar">

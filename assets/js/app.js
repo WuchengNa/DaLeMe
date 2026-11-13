@@ -298,6 +298,8 @@ function renderRoute() {
     return;
   }
   const route = resolveRoute();
+  // 所有页面都能拿到 URL 查询参数（例如 #/plans?templates=1）
+  if (!route.query) route.query = parseRoute().query;
   currentRoute = route;
   if (typeof cleanupCurrent === 'function') {
     try {

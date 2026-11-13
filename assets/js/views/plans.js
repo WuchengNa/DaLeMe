@@ -1,5 +1,6 @@
 /* 训练计划列表与详情 */
 import { PLAN_COLORS } from '../data.js';
+import { PLAN_TEMPLATES, templateSummary } from '../plan-templates.js';
 import {
   deletePlan,
   duplicatePlan,
@@ -37,6 +38,61 @@ function colorOf(plan) {
 function softOf(plan) {
   const color = colorOf(plan);
   return `color-mix(in srgb, ${color} 12%, transparent)`;
+}
+
+/** 模板卡片列表（与模板库弹层共用） */
+export function templateCardsHtml() {
+  return PLAN_TEMPLATES.map((template) => {
+    const stats = templateSummary(template);
+    const color = PLAN_COLORS.find((c) => c.id === template.color)?.value || PLAN_COLORS[0].value;
+    return `<button type="button" class="tpl-card" data-tpl="${template.id}"
+      style="--plan-color:${color};--plan-soft:color-mix(in srgb, ${color} 12%, transparent)">
+      <span class="tpl-head">
+        <span class="tpl-glyph">${icon('layers', 18)}</span>
+        <span class="tpl-head-main">
+          <strong class="tpl-title">${esc(template.name)}</strong>
+          <span class="tpl-meta">
+            <span class="tag lime">${esc(template.level)}</span>
+            <span class="tag">${esc(template.goal)}</span>
+            <span class="tpl-freq">${stats.days} 天 / 周</span>
+          </span>
+        </span>
+      </span>
+      <span class="tpl-desc">${esc(template.desc)}</span>
+      <span class="tpl-day-list">
+        ${template.days
+          .map((day, index) => `<span class="tpl-day"><b>D${index + 1}</b>${esc(day.name)}<em>${day.exercises.length} 个动作</em></span>`)
+          .join('')}
+      </span>
+      <span class="tpl-card-foot">
+        <span class="tpl-stats">${stats.exercises} 个动作 · ${stats.sets} 组 · 约 ${stats.minutes} 分钟</span>
+        <span class="tpl-use">使用模板${icon('arrow-right', 14)}</span>
+      </span>
+    </button>`;
+  }).join('');
+}
+
+/** 模板库：选中一套模板 → 打开预填好的计划编辑器 */
+function showTemplates(ctx) {
+  const cards = templateCardsHtml();
+
+  openSheet({
+    title: '训练计划模板',
+    subtitle: `${PLAN_TEMPLATES.length} 套常用分化，选一套再按自己的情况改`,
+    size: 'lg',
+    className: 'sheet-templates',
+    body: `<div class="tpl-list">${cards}</div>`,
+    footer: `<div class="tpl-note">${icon('info', 14)}<span>模板只决定动作、组次与建议重量，保存前都能自由修改。</span></div>`,
+    onMount: (sheet, close) => {
+      sheet.querySelectorAll('[data-tpl]').forEach((button) => {
+        button.addEventListener('click', () => {
+          const id = button.dataset.tpl;
+          close();
+          ctx.navigate(`/plans/new?template=${id}`);
+        });
+      });
+    },
+  });
 }
 
 function planList(ctx) {
@@ -78,21 +134,30 @@ function planList(ctx) {
     ${pageHead({
       eyebrow: 'PROGRAMS',
       title: '训练计划',
-      actions: `<a class="btn btn-primary" href="#/plans/new">${icon('plus', 16)} 新建计划</a>`,
+      actions: `<button type="button" class="btn btn-ghost" data-open-templates>${icon('layers', 16)} 模板库</button>
+        <a class="btn btn-primary" href="#/plans/new">${icon('plus', 16)} 新建计划</a>`,
     })}
     <div class="plan-grid">
       ${cards}
+      <button type="button" class="add-plan-card" data-open-templates>
+        <span class="plus-circle">${icon('layers', 22)}</span>
+        <b>从模板创建</b>
+        <span>全身三练、上下肢四分化、推拉腿…</span>
+      </button>
       <a class="add-plan-card" href="#/plans/new">
         <span class="plus-circle">${icon('plus', 22)}</span>
-        <b>创建新计划</b>
-        <span>自定义训练日、动作与组次</span>
+        <b>创建空白计划</b>
+        <span>从零自定义训练日、动作与组次</span>
       </a>
     </div>
     ${plans.length === 0 ? `<div style="margin-top:20px">${emptyState({
       iconName: 'plans',
       title: '从第一份计划开始',
-      text: '你可以手动添加动作，也可以先复制内置的上下肢四分化模板。',
-      action: '<a class="btn btn-primary" href="#/plans/new">新建计划</a>',
+      text: '先挑一套模板（全身三练 / 上下肢四分化 / 推拉腿 …），改改重量就能开练。',
+      action: `<div class="empty-actions">
+        <button type="button" class="btn btn-primary" data-open-templates>${icon('layers', 16)} 浏览模板</button>
+        <a class="btn btn-ghost" href="#/plans/new">从空白开始</a>
+      </div>`,
     })}</div>` : ''}
   </div>`;
 
@@ -146,6 +211,10 @@ function planList(ctx) {
           if (plan) startForPlan(plan);
         });
       });
+      root.querySelectorAll('[data-open-templates]').forEach((button) => {
+        button.addEventListener('click', () => showTemplates(ctx));
+      });
+      if (ctx.query?.get('templates') === '1') showTemplates(ctx);
     },
   };
 }

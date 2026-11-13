@@ -2439,6 +2439,203 @@ body.sheet-open #toast-root {
   opacity: 0.7;
 }
 
+/* 计划模板 */
+button.add-plan-card {
+  font: inherit;
+  cursor: pointer;
+  text-align: center;
+}
+
+.empty-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+}
+
+.tpl-applied {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin-top: 16px;
+  padding: 12px 15px;
+  border-radius: var(--radius-sm);
+  border: 1px solid color-mix(in srgb, var(--plan-color) 26%, var(--line));
+  background: color-mix(in srgb, var(--plan-color) 7%, var(--surface));
+}
+
+.tpl-applied-icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--plan-color) 16%, transparent);
+  color: var(--plan-color);
+}
+
+.tpl-applied-text {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.tpl-applied-text b {
+  font-size: 12.5px;
+}
+
+.tpl-applied-text span {
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.tpl-applied .section-link {
+  flex: none;
+  margin-left: auto;
+}
+
+.tpl-list {
+  display: grid;
+  gap: 11px;
+}
+
+.tpl-card {
+  display: grid;
+  gap: 9px;
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: linear-gradient(155deg, var(--plan-soft), var(--surface) 62%);
+  color: var(--text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.18s var(--ease), border-color 0.18s;
+}
+
+.tpl-card:hover {
+  transform: translateY(-2px);
+  border-color: color-mix(in srgb, var(--plan-color) 40%, var(--line));
+}
+
+.tpl-head {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.tpl-glyph {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--plan-color) 16%, transparent);
+  color: var(--plan-color);
+}
+
+.tpl-head-main {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.tpl-title {
+  font-family: var(--font-head);
+  font-size: 14.5px;
+  letter-spacing: -0.01em;
+}
+
+.tpl-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tpl-freq {
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+.tpl-desc {
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+.tpl-day-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.tpl-day {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 7px;
+  background: var(--surface-3);
+  color: var(--text-2);
+  font-size: 10.5px;
+}
+
+.tpl-day b {
+  font-family: var(--font-num);
+  font-size: 10px;
+  color: var(--plan-color);
+}
+
+.tpl-day em {
+  font-style: normal;
+  font-size: 10px;
+  color: var(--muted);
+}
+
+.tpl-card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 8px;
+  border-top: 1px dashed var(--line);
+}
+
+.tpl-stats {
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+.tpl-use {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--plan-color);
+}
+
+.tpl-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  font-size: 11px;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+.tpl-note .icon {
+  flex: none;
+  margin-top: 1px;
+}
+
 /* Plan detail */
 .plan-hero {
   position: relative;
@@ -2936,6 +3133,12 @@ body.sheet-open #toast-root {
   color: var(--accent);
   margin-top: 1px;
   flex: none;
+}
+
+.editor-tip .section-link {
+  flex: none;
+  margin-left: auto;
+  white-space: nowrap;
 }
 
 .save-bar {
@@ -5740,6 +5943,18 @@ body.sheet-open #toast-root {
   }
   .plan-grid {
     grid-template-columns: 1fr;
+  }
+  .tpl-applied {
+    flex-wrap: wrap;
+  }
+  .tpl-applied .section-link {
+    margin-left: 41px;
+  }
+  .tpl-card {
+    padding: 13px;
+  }
+  .tpl-card-foot {
+    flex-wrap: wrap;
   }
   .stats-summary {
     grid-template-columns: 1fr 1fr;
