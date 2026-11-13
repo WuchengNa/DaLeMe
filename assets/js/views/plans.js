@@ -197,7 +197,7 @@ function planDetail(ctx, planId) {
                   return `<div class="day-exercise">
                     ${exerciseGlyph(def?.muscle || 'chest', 'sm')}
                     <div class="ex-info"><strong>${esc(def?.nameZh || def?.name || entry.exerciseId)}</strong><span>${esc(entry.note || def?.equipment || '')}</span></div>
-                    <span class="ex-target">${entry.sets} × ${esc(entry.reps)}<small>${entry.rest || 90}s</small></span>
+                    <span class="ex-target">${entry.sets} × ${esc(entry.reps)}${Number(entry.weight) > 0 ? ` @ ${entry.weight}kg` : ''}<small>${entry.rest || 90}s</small></span>
                   </div>`;
                 })
                 .join('')

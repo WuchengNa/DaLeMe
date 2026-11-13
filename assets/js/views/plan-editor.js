@@ -115,6 +115,7 @@ export default function planEditorView(ctx) {
                           <div class="editor-ex-fields">
                             <div class="mini-field"><label>组数</label><input class="mini-input narrow" type="number" min="1" max="20" inputmode="numeric" data-field="sets" data-ex-index="${index}" value="${esc(entry.sets)}" /></div>
                             <div class="mini-field"><label>次数</label><input class="mini-input wide" type="text" data-field="reps" data-ex-index="${index}" value="${esc(entry.reps)}" placeholder="8-12" /></div>
+                            <div class="mini-field"><label>重量kg</label><input class="mini-input narrow" type="number" min="0" max="1000" step="0.5" inputmode="decimal" data-field="weight" data-ex-index="${index}" value="${esc(entry.weight ?? '')}" placeholder="自重" /></div>
                             <div class="mini-field"><label>休息s</label><input class="mini-input narrow" type="number" min="0" max="600" step="15" inputmode="numeric" data-field="rest" data-ex-index="${index}" value="${esc(entry.rest)}" /></div>
                           </div>
                           <div class="ex-tools">
@@ -157,6 +158,9 @@ export default function planEditorView(ctx) {
           ...entry,
           sets: clamp(Math.round(Number(entry.sets) || 3), 1, 20),
           reps: String(entry.reps || '').trim() || '8-12',
+          weight: entry.weight != null && Number.isFinite(Number(entry.weight)) && Number(entry.weight) > 0
+            ? String(Number(entry.weight))
+            : '',
           rest: clamp(Math.round(Number(entry.rest) || 0), 0, 900),
         })),
       }))
@@ -216,6 +220,7 @@ export default function planEditorView(ctx) {
       exerciseId: def.id,
       sets: 3,
       reps: def.reps || '8-12',
+      weight: '',
       rest: getState().settings.defaultRest || 90,
       note: '',
     });
@@ -430,7 +435,7 @@ export default function planEditorView(ctx) {
           dirty = true;
           return;
         }
-        if (['sets', 'reps', 'rest'].includes(field)) {
+        if (['sets', 'reps', 'weight', 'rest'].includes(field)) {
           const index = Number(el.dataset.exIndex);
           const entry = activeDay()?.exercises[index];
           if (entry) {

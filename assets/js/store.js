@@ -428,9 +428,10 @@ export function buildActiveWorkout(plan, day) {
     const targetSets = Math.max(1, Number(entry.sets) || 3);
     const sets = Array.from({ length: targetSets }, (_, index) => {
       const previous = lastWorking[index] || lastWorking[lastWorking.length - 1];
+      const planWeight = Number(entry.weight) > 0 ? String(entry.weight) : '';
       return {
         id: uid('set'),
-        weight: previous && Number(previous.weight) > 0 ? String(previous.weight) : '',
+        weight: previous && Number(previous.weight) > 0 ? String(previous.weight) : planWeight,
         reps: previous?.reps ? String(previous.reps) : String(hi || lo || 10),
         done: false,
         type: 'normal',

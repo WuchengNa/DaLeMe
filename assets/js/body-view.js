@@ -23,8 +23,8 @@ export function getBodyProfile() {
     weight,
     gender: settings.gender || 'unset',
     bmi,
-    band: bmiBand(bmi),
-    healthy: healthyWeightRange(height),
+    band: bmiBand(bmi, settings.gender || 'unset'),
+    healthy: healthyWeightRange(height, settings.gender || 'unset'),
     recordedAt: record?.date || null,
   };
 }
@@ -50,9 +50,13 @@ function emptyCardHtml() {
 export function bmiCardHtml(profile, { link = true } = {}) {
   if (profile.bmi == null) return emptyCardHtml();
 
-  const { segments, ticks } = bmiScale();
+  const { segments, ticks } = bmiScale(profile.gender);
   const percent = bmiPercent(profile.bmi);
-  const band = profile.band || bmiBand(profile.bmi);
+  const band = profile.band || bmiBand(profile.bmi, profile.gender);
+  const gender = profile.gender || 'unset';
+  const standardNote = gender === 'male'
+    ? '标准刻度：男性 BMI 分界值 18.5 / 25 / 28，仅供参考，不替代医学诊断。'
+    : '标准刻度：BMI 分界值 18.5 / 24 / 28，仅供参考，不替代医学诊断。';
   const meta = [
     profile.height ? `身高 ${profile.height} cm` : '',
     profile.weight ? `体重 ${profile.weight.toFixed(1)} kg` : '',
@@ -102,6 +106,6 @@ export function bmiCardHtml(profile, { link = true } = {}) {
         ? `<p class="bmi-note">按身高 ${profile.height} cm 计算，健康体重范围 <b>${profile.healthy.min.toFixed(1)} – ${profile.healthy.max.toFixed(1)} kg</b></p>`
         : ''
     }
-    <p class="bmi-standard">标准刻度：中国成人 BMI 分界值 18.5 / 24 / 28，仅供参考，不替代医学诊断。</p>
+    <p class="bmi-standard">${esc(standardNote)}</p>
   </section>`;
 }
