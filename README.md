@@ -8,7 +8,7 @@
 
 ![界面预览](docs/preview-bright-home-light.png)
 
-更多界面：[登录页](docs/preview-bright-login-light.png) · [深色主题](docs/preview-bright-home-dark.png) · [我的](docs/preview-bright-profile.png) · [BMI 刻度](docs/preview-bright-body.png) · [手机端身体数据](docs/preview-bright-body-mobile.png) · [动作库](docs/preview-brand-exercises-dark.png) · [分享长图](docs/preview-brand-share-poster.png)
+更多界面：[登录页](docs/preview-bright-login-light.png) · [深色主题](docs/preview-bright-home-dark.png) · [我的](docs/preview-bright-profile.png) · [BMI 刻度](docs/preview-bright-body.png) · [手机端身体数据](docs/preview-bright-body-mobile.png) · [动作库](docs/preview-brand-exercises-dark.png) · [分享长图](docs/preview-brand-share-poster.png) · [大大广场](docs/preview-social-square.png) · [关注流](docs/preview-social-following.png) · [分享详情](docs/preview-social-post-detail.png) · [训练者主页](docs/preview-social-user.png) · [手机端广场](docs/preview-social-square-mobile.png)
 
 > `docs/` 下未列出的 `preview-*.png` 为旧版本截图，仅作历史留档，不反映当前界面。
 
@@ -22,6 +22,7 @@
 - **分享长图**：把某次训练生成 1500px 宽的高清竖版 PNG（日期、四项数据、PR、逐动作组次、训练感受、品牌页脚），可保存到本地、复制图片、调起系统分享，或长按图片发到微信。
 - **数据分析**：周容量柱状图、肌群分布、训练节奏、16 周热力图、个人最佳排行。
 - **动作库**：接入 [exercises-dataset](https://github.com/hasaneyldrm/exercises-dataset) 的 **1,324 个动作**；按 **10 个部位 / 26 种器械** 筛选与分组、搜索（中英文名 / 器械 / 肌群）、每个动作都有 **演示 GIF**、详情页含中英文分步动作要领；仍支持自定义动作。
+- **大大广场（社交）**：把某次训练**分享到广场**，所有登录用户都能看到；**互相关注**后，关注的人有新分享会出现在「关注」流里；支持**点赞**、评论式配文、**找训练者**（搜索 / 推荐）、训练者主页（分享数 / 关注 / 粉丝）；只分享单次训练的固化快照，其余训练数据仍为私有。
 - **身体数据与 BMI**：身高、体重、性别设置，体重 / 体脂记录与趋势图；BMI 卡片按**中国成人标准**（18.5 / 24 / 28）显示四段刻度、分界值、当前位置指针、所处区间与健康体重范围。
 - **「我的」二级页面**：首页只保留身份概览 + BMI + 四个入口，登录同步、训练偏好、身体数据、数据管理分别放到独立页面。
 - **账号与云同步**：必须登录才能使用；注册 / 登录、HttpOnly Cookie 会话、改动自动同步、手动同步；云端为唯一数据源。
@@ -56,6 +57,29 @@ Windows 下也可以直接双击 `start.bat`（仅本机访问），或双击 `s
 7. 换设备登录同一账号会自动拉取云端数据（云端为准）。
 8. 同一个页面里可以修改密码（其他设备自动退出）、一键退出所有设备、注销账号（云端数据永久删除）；主动退出登录会同时清除「记住登录」偏好。
 9. 会话过期时应用会自动回到登录页，不会静默丢失账号归属。
+
+## 大大广场（社交）
+
+「大大广场」是应用里的社区模块：你可以把某一次训练分享出去，让其他训练者看到，也可以关注别人、在「关注」流里只看关注的人的动态。
+
+**分享方式**（任选其一）：
+
+- 广场页右上角「分享训练」→ 从最近 20 次训练里挑一次 → 写一句感受 → 发布。
+- 「训练记录 → 某次训练详情」里的「分享到广场」按钮（弹层会自动选中这一次训练）。
+
+**广场 / 关注**
+
+- 广场按时间倒序展示所有登录用户的分享；「关注」Tab 只展示**自己 + 关注的人**的分享，没有关注对象时会引导去发现训练者。
+- 动态卡片展示训练日名称、容量 / 组数 / 时长 / 动作数、本次 PR、前三个动作与最佳组次；点卡片进入**分享详情**，可查看完整的逐动作组次与训练感受。
+- 每条动态都可以**点赞**（再点一次取消）；自己的动态可以随时删除（只删分享，不删训练记录）。
+- 「找训练者」弹层支持按昵称 / 用户名搜索；侧栏「发现训练者」会推荐还没关注的活跃训练者。
+- 训练者主页（点头像或昵称进入）展示公开资料、分享 / 关注 / 粉丝数，以及 TA 的全部分享；桌面端导航有「大大广场」与「关注」两个入口，手机端底部导航有「广场」。
+
+**隐私与数据设计**
+
+- 发布时由**服务端**从你的云端训练数据里提取一份**固化的训练快照**（训练日、动作名、组数、重量、次数、时长、感受），客户端无法伪造他人的成绩；之后修改或删除本地记录，也不会改动已发布的动态。
+- 快照只包含这一次训练的内容，计划、身体数据、历史记录等其余数据仍然完全私有；不想展示了随时删除即可。
+- 每次训练只能分享一次，避免广场被重复动态刷屏；昵称来自「我的 → 编辑资料」的称呼，自动同步到公开资料。
 
 ## 我的与 BMI
 
@@ -229,6 +253,17 @@ HOST=0.0.0.0 PORT=4173 COOKIE_SECURE=1 TRUST_PROXY=1 npm start
 | GET | `/api/auth/me` | 当前登录用户 |
 | GET | `/api/data` | 获取云端训练数据 |
 | PUT | `/api/data` | 覆盖保存云端训练数据 |
+| GET | `/api/social/feed` | 大大广场 / 关注信息流（`scope=square|following`，`before` 游标分页） |
+| POST | `/api/social/posts` | 分享一次训练到大大广场（服务端固化快照） |
+| GET | `/api/social/posts/:id` | 分享详情 |
+| DELETE | `/api/social/posts/:id` | 删除自己的分享 |
+| POST / DELETE | `/api/social/posts/:id/like` | 点赞 / 取消点赞 |
+| GET | `/api/social/users?q=` | 搜索训练者（无关键词时推荐） |
+| GET | `/api/social/users/:id` | 训练者主页（资料 + 动态） |
+| POST / DELETE | `/api/social/users/:id/follow` | 关注 / 取消关注 |
+| GET | `/api/social/users/:id/followers` / `/following` | 粉丝 / 关注列表 |
+| GET / PUT | `/api/social/profile` | 公开资料（昵称 / 简介） |
+| GET | `/api/social/avatar/:userId` | 其他训练者的头像（需登录） |
 
 安全策略：CSP / HSTS / X-Frame-Options 等安全头、同源校验（防 CSRF）、多级限流、scrypt 加盐密码哈希、HttpOnly + SameSite Cookie、服务端仅存会话哈希。
 
@@ -238,7 +273,7 @@ HOST=0.0.0.0 PORT=4173 COOKIE_SECURE=1 TRUST_PROXY=1 npm start
 npm test
 ```
 
-集成测试会真实启动服务器（随机端口、临时数据目录），12 项测试覆盖注册登录、数据同步、改密码、退出所有设备、注销账号、限流、路径穿越、CSP/ETag/gzip、头像，以及动作库目录完整性（1,324 条记录 / GIF / 中文要领）、GIF 的 MIME 与长缓存等行为。
+集成测试会真实启动服务器（随机端口、临时数据目录），20 项测试覆盖注册登录、数据同步、改密码、退出所有设备、注销账号、限流、路径穿越、CSP/ETag/gzip、头像，以及大大广场（发布快照 / 重复分享拦截 / 广场与关注流 / 点赞 / 关注 / 主页 / 游标分页 / 级联删除）、动作库目录完整性（1,324 条记录 / GIF / 中文要领）、GIF 的 MIME 与长缓存等行为。
 
 ## 项目结构
 
@@ -265,12 +300,16 @@ assets/
     account.js        # 登录页、账号卡片、账号安全
     poster.js         # 训练长图 Canvas 渲染（排版测量 + 绘制）
     share.js          # 分享弹层：保存 / 微信 / 复制图片 / 复制文案
+    social.js         # 社交共享件：广场卡片、关注按钮、发布弹层、找人弹层
     ui.js             # 图标、弹层、Toast、通用组件
     charts.js         # 纯 SVG 图表
     utils.js          # 日期、数字、格式化工具
     views/            # 各页面视图
       profile.js      # 「我的」首页（身份 + BMI + 四个入口）
       profile-sections.js  # 身体数据 / 训练偏好 / 账号与同步 / 数据管理
+      square.js       # 大大广场 / 关注信息流
+      post-detail.js  # 分享详情（完整逐动作组次）
+      user-profile.js # 训练者主页（资料 / 关注 / 粉丝 / 分享）
 server.mjs            # 服务入口：HTTP、超时、优雅停机、定时任务
 server/
   config.mjs          # 环境变量集中读取与校验
@@ -279,6 +318,8 @@ server/
   auth.mjs            # 密码哈希与会话管理
   security.mjs        # 限流、来源校验、安全头
   handlers.mjs        # API 路由
+  social.mjs          # 社交模块：广场 / 关注 / 点赞 / 训练者主页 / 快照生成
+  json.mjs            # JSON 请求 / 响应辅助（handlers 与 social 共用）
   static.mjs          # 静态资源：内容指纹版本化、ETag/304、gzip、缓存策略
 scripts/
   import-exercises.mjs  # 从上游数据集重新生成动作库（媒体 + 目录）

@@ -9,6 +9,7 @@ import {
   workoutStats,
 } from '../store.js';
 import { openWorkoutShare } from '../share.js';
+import { openPublishSheet } from '../social.js';
 import {
   actionSheet,
   confirmDialog,
@@ -125,6 +126,7 @@ export default function historyDetailView(ctx) {
     <div class="detail-actions">
       <button type="button" class="btn btn-primary" data-repeat>${icon('rotate', 16)} 再做一次</button>
       <button type="button" class="btn btn-ghost" data-share-card>${icon('share', 16)} 分享长图</button>
+      <button type="button" class="btn btn-ghost" data-share-square>${icon('square', 16)} 分享到广场</button>
       <button type="button" class="btn btn-ghost" data-delete-workout>${icon('trash', 16)} 删除记录</button>
     </div>
   </div>`;
@@ -198,10 +200,17 @@ export default function historyDetailView(ctx) {
       root.querySelector('[data-repeat]')?.addEventListener('click', repeat);
       root.querySelector('[data-delete-workout]')?.addEventListener('click', remove);
       const share = () => openWorkoutShare(workout);
+      const shareSquare = () =>
+        openPublishSheet({
+          workoutId: workout.id,
+          onPublished: (post) => ctx.navigate(`/square/p/${post.id}`),
+        });
       root.querySelector('[data-share]')?.addEventListener('click', share);
       root.querySelector('[data-share-card]')?.addEventListener('click', share);
+      root.querySelector('[data-share-square]')?.addEventListener('click', shareSquare);
       root.querySelector('[data-detail-menu]')?.addEventListener('click', () => {
         actionSheet('训练记录', [
+          { label: '分享到大大广场', icon: 'square', onClick: shareSquare },
           { label: '生成分享长图', icon: 'share', onClick: share },
           { label: '复制训练摘要', icon: 'copy', onClick: copySummary },
           { label: '再做一次', icon: 'rotate', onClick: repeat },

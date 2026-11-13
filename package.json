@@ -1,6 +1,6 @@
 {
   "name": "daleme",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "private": true,
   "type": "module",
   "description": "大了么 —— 本地优先的训练计划与训练记录 Web 应用",

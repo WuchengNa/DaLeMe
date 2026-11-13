@@ -584,3 +584,174 @@ test('动作库媒体：同源静态服务正确返回 GIF / 缩略图 / 中文�
     await server.stop();
   }
 });
+
+/* ---------------- 社交：大大广场 / 关注 ---------------- */
+
+function socialState() {
+  const now = Date.now();
+  const workout = (id, dayName, weight) => ({
+    id,
+    planId: 'p1',
+    planName: '推拉腿',
+    dayName,
+    startedAt: new Date(now - 2 * 3600e3).toISOString(),
+    finishedAt: new Date(now).toISOString(),
+    durationSec: 3600,
+    notes: '状态不错',
+    exercises: [
+      {
+        exerciseId: 'e1',
+        name: '杠铃卧推',
+        muscle: 'chest',
+        sets: [
+          { weight: 60, reps: 10, done: true, type: 'warmup' },
+          { weight, reps: 5, done: true, type: 'normal' },
+        ],
+      },
+    ],
+  });
+  return {
+    schema: 1,
+    plans: [],
+    settings: { userName: '阿强', theme: 'light' },
+    workouts: [
+      workout('w1', '推日', 100),
+      workout('w2', '推日二', 102),
+      workout('w3', '推日三', 104),
+      { id: 'w_empty', planId: 'p1', planName: '推拉腿', dayName: '空训练', startedAt: new Date().toISOString(), durationSec: 60, exercises: [] },
+    ],
+  };
+}
+
+test('社交：发布分享、广场与关注流、点赞、关注、主页与级联删除', async () => {
+  const server = await startServer();
+  const a = makeClient(server.base);
+  const b = makeClient(server.base);
+  const c = makeClient(server.base);
+  try {
+    /* 未登录一律 401 */
+    assert.equal((await a.request('/api/social/feed')).status, 401);
+    assert.equal(
+      (await a.request('/api/social/posts', { method: 'POST', body: { workoutId: 'w1' }, origin: server.base })).status,
+      401,
+    );
+
+    await a.request('/api/auth/register', { method: 'POST', body: { username: '广场阿强', password: 'password-123' }, origin: server.base });
+    await b.request('/api/auth/register', { method: 'POST', body: { username: '关注者小李', password: 'password-123' }, origin: server.base });
+    await c.request('/api/auth/register', { method: 'POST', body: { username: '路人老王', password: 'password-123' }, origin: server.base });
+
+    await a.request('/api/data', { method: 'PUT', body: { data: socialState() }, origin: server.base });
+
+    /* 发布：服务端从云端数据生成快照，忽略客户端伪造内容 */
+    const created = await a.request('/api/social/posts', {
+      method: 'POST',
+      body: { workoutId: 'w1', caption: '卧推破百' },
+      origin: server.base,
+    });
+    assert.equal(created.status, 201);
+    assert.equal(created.payload.post.author.isSelf, true);
+    assert.equal(created.payload.post.stats.sets, 1);
+    assert.equal(created.payload.post.stats.volume, 500);
+    assert.deepEqual(created.payload.post.prs, [
+      { name: '杠铃卧推', weight: 100, reps: 5, isFirst: true },
+    ]);
+
+    /* 同一次训练不能重复分享；不存在的训练 / 空训练不能分享 */
+    assert.equal(
+      (await a.request('/api/social/posts', { method: 'POST', body: { workoutId: 'w1' }, origin: server.base })).status,
+      409,
+    );
+    assert.equal(
+      (await a.request('/api/social/posts', { method: 'POST', body: { workoutId: 'nope' }, origin: server.base })).status,
+      400,
+    );
+    assert.equal(
+      (await a.request('/api/social/posts', { method: 'POST', body: { workoutId: 'w_empty' }, origin: server.base })).status,
+      400,
+    );
+
+    /* 广场：所有人可见 */
+    const squareC = await c.request('/api/social/feed?scope=square');
+    assert.equal(squareC.status, 200);
+    assert.equal(squareC.payload.posts.length, 1);
+    assert.equal(squareC.payload.nextCursor, null);
+    assert.equal(squareC.payload.posts[0].caption, '卧推破百');
+
+    /* 互相看到：B 关注 A，B 的关注流包含 A 的分享（以及自己的） */
+    const aId = created.payload.post.author.id;
+    assert.equal(
+      (await a.request(`/api/social/users/${aId}/follow`, { method: 'POST', origin: server.base })).status,
+      400,
+    );
+    const follow = await b.request(`/api/social/users/${aId}/follow`, { method: 'POST', origin: server.base });
+    assert.equal(follow.status, 200);
+    assert.equal(follow.payload.following, true);
+    assert.equal(follow.payload.followers, 1);
+
+    const followingB = await b.request('/api/social/feed?scope=following');
+    assert.equal(followingB.payload.posts.length, 1);
+    assert.equal(followingB.payload.following, 1);
+
+    const followingC = await c.request('/api/social/feed?scope=following');
+    assert.equal(followingC.payload.posts.length, 0);
+
+    /* 点赞 */
+    const postId = created.payload.post.id;
+    const like = await b.request(`/api/social/posts/${postId}/like`, { method: 'POST', origin: server.base });
+    assert.equal(like.status, 200);
+    assert.equal(like.payload.likes, 1);
+    const squareAfterLike = await c.request('/api/social/feed');
+    assert.equal(squareAfterLike.payload.posts[0].likes, 1);
+    assert.equal(squareAfterLike.payload.posts[0].liked, false);
+    const unlike = await c.request(`/api/social/posts/${postId}/like`, { method: 'DELETE', origin: server.base });
+    assert.equal(unlike.payload.likes, 1); /* C 本来就没点过赞，取消是无操作 */
+
+    /* 主页与搜索 */
+    const userB = await b.request(`/api/social/users/${aId}`);
+    assert.equal(userB.payload.user.username, '广场阿强');
+    assert.equal(userB.payload.user.followers, 1);
+    assert.equal(userB.payload.user.isFollowing, true);
+    assert.equal(userB.payload.user.posts, 1);
+    assert.equal(userB.payload.posts.length, 1);
+
+    const search = await b.request('/api/social/users?q=' + encodeURIComponent('阿强'));
+    assert.ok(search.payload.users.some((u) => u.id === aId));
+
+    const suggest = await c.request('/api/social/users');
+    assert.ok(suggest.payload.users.some((u) => u.id === aId));
+
+    /* 分页 */
+    await a.request('/api/social/posts', { method: 'POST', body: { workoutId: 'w2' }, origin: server.base });
+    await a.request('/api/social/posts', { method: 'POST', body: { workoutId: 'w3' }, origin: server.base });
+    const page1 = await a.request('/api/social/feed?limit=2');
+    assert.equal(page1.payload.posts.length, 2);
+    assert.ok(page1.payload.nextCursor);
+    const page2 = await a.request(`/api/social/feed?limit=2&before=${encodeURIComponent(page1.payload.nextCursor)}`);
+    assert.equal(page2.payload.posts.length, 1);
+    assert.equal(page2.payload.nextCursor, null);
+
+    /* 权限：只能删除自己的分享 */
+    assert.equal(
+      (await b.request(`/api/social/posts/${postId}`, { method: 'DELETE', origin: server.base })).status,
+      403,
+    );
+
+    /* 公开资料：改昵称后广场立刻显示新昵称 */
+    const profile = await b.request('/api/social/profile', {
+      method: 'PUT',
+      body: { displayName: '小李飞刀', bio: '练背狂魔' },
+      origin: server.base,
+    });
+    assert.equal(profile.payload.profile.displayName, '小李飞刀');
+
+    /* 注销账号：动态、关注关系级联删除 */
+    await a.request('/api/account', { method: 'DELETE', body: { password: 'password-123' }, origin: server.base });
+    const squareAfterDelete = await c.request('/api/social/feed?scope=square');
+    assert.equal(squareAfterDelete.payload.posts.length, 0);
+    const followingAfterDelete = await b.request('/api/social/feed?scope=following');
+    assert.equal(followingAfterDelete.payload.posts.length, 0);
+    assert.equal(followingAfterDelete.payload.following, 0);
+  } finally {
+    await server.stop();
+  }
+});

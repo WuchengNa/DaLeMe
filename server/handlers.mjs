@@ -4,6 +4,8 @@ import { randomBytes } from 'node:crypto';
 import { config } from './config.mjs';
 import { parseAvatarImage } from './avatar.mjs';
 import { stmt, checkIntegrity } from './db.mjs';
+import { readJson, sendJson } from './json.mjs';
+import { routeSocial } from './social.mjs';
 import {
   createSession,
   getUserFromRequest,
@@ -25,37 +27,8 @@ import { log } from './logger.mjs';
 
 const startedAt = Date.now();
 
-export function sendJson(res, status, payload, extraHeaders = {}) {
-  const body = JSON.stringify(payload);
-  res.writeHead(status, {
-    'Content-Type': 'application/json; charset=utf-8',
-    'Cache-Control': 'no-store',
-    ...extraHeaders,
-  });
-  res.end(body);
-}
-
-export async function readJson(req) {
-  const type = String(req.headers['content-type'] || '');
-  if (!type.includes('application/json')) {
-    throw new HttpError(415, '请求格式必须是 application/json', 'UNSUPPORTED_MEDIA_TYPE');
-  }
-  const chunks = [];
-  let size = 0;
-  for await (const chunk of req) {
-    size += chunk.length;
-    if (size > config.maxBodyBytes) {
-      throw new HttpError(413, '数据体积过大', 'PAYLOAD_TOO_LARGE');
-    }
-    chunks.push(chunk);
-  }
-  if (!chunks.length) throw new HttpError(400, '请求体为空', 'EMPTY_BODY');
-  try {
-    return JSON.parse(Buffer.concat(chunks).toString('utf8'));
-  } catch {
-    throw new HttpError(400, 'JSON 格式不正确', 'BAD_JSON');
-  }
-}
+/* 兼容旧调用方：这两个辅助原本定义在本文件 */
+export { readJson, sendJson };
 
 function validatePassword(value) {
   const password = String(value ?? '');
@@ -264,6 +237,11 @@ export async function handleApi(req, res, url) {
   const method = req.method;
 
   if (pathname === '/api/health' && method === 'GET') return handleHealth(res);
+
+  /* 社交模块：大大广场、关注、用户主页、点赞与他人头像 */
+  if (pathname.startsWith('/api/social/')) {
+    if (await routeSocial(req, res, url)) return;
+  }
 
   if (pathname === '/api/auth/register' && method === 'POST') {
     checkOrigin(req);

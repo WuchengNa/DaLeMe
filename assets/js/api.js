@@ -52,6 +52,31 @@ export const api = {
   putCloudData: (data) => request('/api/data', { method: 'PUT', body: { data } }),
   uploadAvatar: (image) => request('/api/avatar', { method: 'PUT', body: { image } }),
   deleteAvatar: () => request('/api/avatar', { method: 'DELETE' }),
+
+  /* ---------------- 社交：大大广场 / 关注 ---------------- */
+  socialFeed: ({ scope = 'square', before = '', limit = 10 } = {}) => {
+    const params = new URLSearchParams({ scope, limit: String(limit) });
+    if (before) params.set('before', before);
+    return request(`/api/social/feed?${params.toString()}`);
+  },
+  createPost: (workoutId, caption = '') =>
+    request('/api/social/posts', { method: 'POST', body: { workoutId, caption } }),
+  getPost: (id) => request(`/api/social/posts/${encodeURIComponent(id)}`),
+  deletePost: (id) => request(`/api/social/posts/${encodeURIComponent(id)}`, { method: 'DELETE' }),
+  likePost: (id, liked) =>
+    request(`/api/social/posts/${encodeURIComponent(id)}/like`, {
+      method: liked ? 'DELETE' : 'POST',
+    }),
+  getSocialProfile: () => request('/api/social/profile'),
+  updateSocialProfile: (patch) => request('/api/social/profile', { method: 'PUT', body: patch }),
+  searchUsers: (q = '') =>
+    request(`/api/social/users${q ? `?q=${encodeURIComponent(q)}` : ''}`),
+  getUser: (id) => request(`/api/social/users/${encodeURIComponent(id)}`),
+  followUser: (id) => request(`/api/social/users/${encodeURIComponent(id)}/follow`, { method: 'POST' }),
+  unfollowUser: (id) =>
+    request(`/api/social/users/${encodeURIComponent(id)}/follow`, { method: 'DELETE' }),
+  getUserFollows: (id, kind = 'followers') =>
+    request(`/api/social/users/${encodeURIComponent(id)}/${kind}`),
 };
 
 export { ApiError };

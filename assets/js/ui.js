@@ -63,6 +63,13 @@ const PATHS = {
   camera: '<path d="M4 8h3l2-2h6l2 2h3v11H4z"/><circle cx="12" cy="13" r="3.4"/>',
   share: '<path d="M12 15V3M8 7l4-4 4 4"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/>',
   wechat: '<path d="M9.5 4C5.6 4 2.5 6.5 2.5 9.6c0 1.7.9 3.2 2.4 4.2l-.6 2.2 2.5-1.2c.8.2 1.8.4 2.7.4h.6"/><path d="M6.6 8.2h.01M12.4 8.2h.01" stroke-width="2.6"/><path d="M14.8 11.6c3.4 0 6.2 2.2 6.2 5s-2.8 5-6.2 5c-.7 0-1.4-.1-2-.3l-2.2 1 .5-2c-1.1-.9-1.8-2.2-1.8-3.7 0-2.8 2.8-5 5.5-5z"/><path d="M12.8 15h.01M16.8 15h.01" stroke-width="2.6"/>',
+  square: '<rect x="3" y="3" width="7.4" height="7.4" rx="2.2"/><rect x="13.6" y="3" width="7.4" height="7.4" rx="2.2"/><rect x="3" y="13.6" width="7.4" height="7.4" rx="2.2"/><rect x="13.6" y="13.6" width="7.4" height="7.4" rx="2.2"/>',
+  users: '<circle cx="9.2" cy="8" r="3.5"/><path d="M2.8 20a6.4 6.4 0 0 1 12.8 0"/><path d="M16.4 5.1a3.5 3.5 0 0 1 0 5.8M17.6 14.2A6.4 6.4 0 0 1 21.6 20"/>',
+  heart: '<path d="M12 20.4 4.7 13a4.9 4.9 0 0 1 6.9-7l.4.4.4-.4a4.9 4.9 0 0 1 6.9 7L12 20.4z"/>',
+  send: '<path d="M21 3 3 10.4l7.1 2.6L12.7 20 21 3z"/><path d="M10.1 13 21 3"/>',
+  'user-plus': '<circle cx="9.5" cy="8" r="3.6"/><path d="M3 20a6.5 6.5 0 0 1 13 0"/><path d="M18.5 7v6M15.5 10h6"/>',
+  'user-check': '<circle cx="9.5" cy="8" r="3.6"/><path d="M3 20a6.5 6.5 0 0 1 13 0"/><path d="m15.8 10.2 2 2 3.7-4"/>',
+  quote: '<path d="M4 6h16v12H4z"/><path d="M8 10h8M8 14h5"/>',
 };
 
 export function icon(name, size = 20, extra = '') {

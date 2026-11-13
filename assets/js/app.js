@@ -26,6 +26,10 @@ import statsView from './views/stats.js';
 import exercisesView from './views/exercises.js';
 import exerciseDetailView from './views/exercise-detail.js';
 import profileView from './views/profile.js';
+import squareView from './views/square.js';
+import postDetailView from './views/post-detail.js';
+import userProfileView from './views/user-profile.js';
+import { syncPublicProfile } from './social.js';
 import {
   accountView,
   bodyView,
@@ -46,9 +50,12 @@ const NAV_ITEMS = [
   { key: 'home', label: '今日', icon: 'home', path: '/', group: '训练' },
   { key: 'plans', label: '训练计划', icon: 'plans', path: '/plans', group: '训练' },
   { key: 'exercises', label: '动作库', icon: 'dumbbell', path: '/exercises', group: '训练' },
+  { key: 'square', label: '大大广场', icon: 'square', path: '/square', group: '社区' },
+  { key: 'following', label: '关注', icon: 'users', path: '/following', group: '社区' },
   { key: 'history', label: '训练记录', icon: 'history', path: '/history', group: '数据' },
   { key: 'stats', label: '数据分析', icon: 'chart', path: '/stats', group: '数据' },
 ];
+const NAV_GROUPS = ['训练', '社区', '数据'];
 
 function parseRoute() {
   const raw = location.hash.replace(/^#/, '') || '/';
@@ -76,6 +83,21 @@ function resolveRoute() {
     return { key: 'history', view: historyView, title: '训练记录', path };
   }
   if (first === 'stats') return { key: 'stats', view: statsView, title: '数据分析', path };
+  if (first === 'square' || first === 'following') {
+    if (first === 'square' && second === 'p' && third) {
+      return { key: 'square', view: postDetailView, params: { id: third }, title: '分享详情', path };
+    }
+    if (first === 'square' && second === 'u' && third) {
+      return { key: 'square', view: userProfileView, params: { id: third }, title: '训练者主页', path };
+    }
+    return {
+      key: first === 'following' ? 'following' : 'square',
+      view: squareView,
+      params: { tab: first === 'following' ? 'following' : 'square' },
+      title: first === 'following' ? '关注' : '大大广场',
+      path,
+    };
+  }
   if (first === 'exercises') {
     if (second) return { key: 'exercises', view: exerciseDetailView, params: { id: second }, title: '动作详情', path };
     return { key: 'exercises', view: exercisesView, title: '动作库', path };
@@ -178,7 +200,7 @@ function renderChrome() {
   const pct = Math.min(100, Math.round((summary.count / goal) * 100));
   const currentKey = currentRoute.key;
 
-  const navGroups = ['训练', '数据'];
+  const navGroups = NAV_GROUPS;
   const navHtml = navGroups
     .map(
       (group) => `<span class="nav-label">${group}</span>${NAV_ITEMS.filter((item) => item.group === group)
@@ -234,10 +256,10 @@ function renderChrome() {
 
   const mobileItems = [
     { key: 'home', label: '今日', icon: 'home', path: '/' },
-    { key: 'plans', label: '计划', icon: 'plans', path: '/plans' },
+    { key: 'square', label: '广场', icon: 'square', path: '/square' },
     { key: 'workout', label: active ? '继续' : '开始', icon: 'zap', path: '/workout', center: true },
+    { key: 'plans', label: '计划', icon: 'plans', path: '/plans' },
     { key: 'history', label: '记录', icon: 'history', path: '/history' },
-    { key: 'stats', label: '数据', icon: 'chart', path: '/stats' },
   ];
 
   bottomNav.innerHTML = mobileItems
@@ -250,6 +272,7 @@ function renderChrome() {
       }
       const isActive =
         currentKey === item.key ||
+        (item.key === 'square' && currentKey === 'following') ||
         (item.key === 'plans' && (currentKey === 'plan-editor' || currentKey === 'plans')) ||
         (item.key === 'exercises' && currentKey === 'exercises');
       return `<a class="bottom-item${isActive ? ' active' : ''}" href="#${item.path}">
@@ -387,6 +410,8 @@ async function boot() {
     return;
   }
   enterApp();
+  /* 把「我的称呼」同步到广场的公开资料（失败不阻塞使用） */
+  void syncPublicProfile();
   if (result?.error) showToast('网络连接失败，请检查网络后重试', 'error');
   console.info(`%c大了么 v${APP_VERSION}`, 'color:#ff9b3f;font-weight:700', `· ${todayKey()}`);
 }

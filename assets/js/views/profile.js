@@ -10,6 +10,7 @@ import {
 import { syncStatusInfo } from '../account.js';
 import { getSyncState } from '../sync.js';
 import { avatarHtml } from '../avatar.js';
+import { syncPublicProfile } from '../social.js';
 import { getBodyProfile, bmiCardHtml } from '../body-view.js';
 import { icon, openSheet, showToast } from '../ui.js';
 import { esc, fmtDate, fmtVolume, sum } from '../utils.js';
@@ -35,6 +36,7 @@ export default function profileView(ctx) {
   const menuRows = [
     { path: '/profile/body', iconName: 'scale', title: '身体数据', desc: bodySummary },
     { path: '/profile/preferences', iconName: 'target', title: '训练偏好', desc: prefSummary },
+    { path: '/stats', iconName: 'chart', title: '数据分析', desc: '周容量 · 肌群分布 · 个人最佳' },
     { path: '/profile/account', iconName: 'shield', title: '账号与同步', desc: accountSummary },
     { path: '/profile/data', iconName: 'layers', title: '数据管理', desc: '导出备份 · 导入 · 清空' },
   ];
@@ -92,6 +94,8 @@ export default function profileView(ctx) {
         sheet.querySelector('[data-save-name]').addEventListener('click', () => {
           const value = sheet.querySelector('[data-name-input]').value.trim();
           updateSettings({ userName: value });
+          /* 昵称同时更新到广场的公开资料 */
+          void syncPublicProfile();
           close();
           showToast('资料已更新');
           ctx.rerender();
