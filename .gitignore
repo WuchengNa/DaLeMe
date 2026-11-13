@@ -23,3 +23,4 @@ Thumbs.db
 
 # WorkBuddy 项目内部数据（记忆/日志，不入库）
 .workbuddy/
+.tmp-e2e-profile/

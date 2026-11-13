@@ -109,7 +109,7 @@ export default function planEditorView(ctx) {
                         return `<div class="editor-ex" data-ex-index="${index}">
                           ${exerciseGlyph(def?.muscle || 'chest', 'sm')}
                           <div class="editor-ex-main">
-                            <strong>${esc(def?.name || entry.exerciseId)}</strong>
+                            <strong>${esc(primaryName(def) || entry.exerciseId)}</strong>
                             <span>${esc(def?.equipment || '')} · ${esc(MUSCLES[def?.muscle]?.name || '')}</span>
                           </div>
                           <div class="editor-ex-fields">

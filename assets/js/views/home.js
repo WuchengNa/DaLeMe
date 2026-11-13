@@ -27,6 +27,7 @@ import {
   WEEKDAYS_SHORT,
 } from '../utils.js';
 import { MUSCLES } from '../data.js';
+import { primaryName } from '../exercise-utils.js';
 
 const TIPS = [
   '训练前花 5 分钟做动态热身，能显著提升动作质量。',
@@ -164,7 +165,7 @@ export default function homeView(ctx) {
             .map((entry) => {
               const def = getExercise(entry.exerciseId);
               const info = MUSCLES[def?.muscle] || {};
-              return `<span class="today-ex" style="--muscle:${info.color || 'var(--muted)'}"><i></i>${esc(def?.name || entry.exerciseId)}</span>`;
+              return `<span class="today-ex" style="--muscle:${info.color || 'var(--muted)'}"><i></i>${esc(primaryName(def) || entry.exerciseId)}</span>`;
             })
             .join('')}
           ${suggestion.day.exercises.length > 5 ? `<span class="today-ex">+${suggestion.day.exercises.length - 5}</span>` : ''}

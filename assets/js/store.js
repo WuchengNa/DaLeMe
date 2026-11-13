@@ -16,7 +16,6 @@ import {
   uid,
 } from './utils.js';
 
-let state = loadState();
 const listeners = new Set();
 
 /**
@@ -29,14 +28,32 @@ function normalizeSettings(settings) {
   return settings;
 }
 
+/**
+ * 训练记录里的动作名是建档时的快照。动作库接入中文译名后，
+ * 早期记录的英文名需要按动作库当前中文名刷新（幂等，每次加载都会执行）。
+ * 自定义动作与旧版内置动作不在目录 Map 中，保持原样不动。
+ */
+const catalogNameById = new Map(EXERCISE_CATALOG.map((e) => [e.id, e.nameZh || e.name]));
+
+function refreshExerciseNames(workout) {
+  if (!workout || !Array.isArray(workout.exercises)) return;
+  for (const exercise of workout.exercises) {
+    const currentName = catalogNameById.get(exercise.exerciseId);
+    if (currentName && exercise.name !== currentName) exercise.name = currentName;
+  }
+}
+
 function normalizeState(parsed) {
   const defaults = createDefaultState();
+  const workouts = Array.isArray(parsed.workouts) ? parsed.workouts : [];
+  workouts.forEach(refreshExerciseNames);
+  if (parsed.activeWorkout) refreshExerciseNames(parsed.activeWorkout);
   return {
     ...defaults,
     ...parsed,
     settings: normalizeSettings({ ...defaults.settings, ...(parsed.settings || {}) }),
     plans: Array.isArray(parsed.plans) ? parsed.plans : [],
-    workouts: Array.isArray(parsed.workouts) ? parsed.workouts : [],
+    workouts,
     customExercises: Array.isArray(parsed.customExercises) ? parsed.customExercises : [],
     bodyWeights: Array.isArray(parsed.bodyWeights) ? parsed.bodyWeights : [],
   };
@@ -56,6 +73,8 @@ function loadState() {
     return createDefaultState();
   }
 }
+
+let state = loadState();
 
 export function getState() {
   return state;
