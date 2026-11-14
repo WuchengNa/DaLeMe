@@ -59,6 +59,20 @@ export const PLAN_COLORS = [
   { id: 'violet', label: '暮紫', value: '#c39bff' },
 ];
 
+/* 每个动作练完后的快捷感受评价：从轻松到力竭 */
+export const FEEL_LEVELS = [
+  { id: 'easy', label: '轻松', hint: '还能多做 3 次以上', color: '#6fb7ff', soft: 'rgba(111,183,255,.16)' },
+  { id: 'moderate', label: '适中', hint: '大概还剩 2 次余量', color: '#ffb056', soft: 'rgba(255,176,86,.16)' },
+  { id: 'hard', label: '吃力', hint: '只能再顶 1 次', color: '#ff8f6b', soft: 'rgba(255,143,107,.16)' },
+  { id: 'failure', label: '力竭', hint: '一下也做不动了', color: '#ff8080', soft: 'rgba(255,128,128,.16)' },
+];
+
+export const FEEL_MAP = Object.fromEntries(FEEL_LEVELS.map((level) => [level.id, level]));
+
+export function feelInfo(id) {
+  return FEEL_MAP[id] || null;
+}
+
 /* ------------------------------------------------------------------
    旧版内置动作（48 个）：新目录已替换它们，但历史计划 / 训练里仍可能
    引用这些 id。仅用于 getExercise() 兜底解析，不出现在动作库与选择器中。
@@ -133,6 +147,8 @@ export function createDefaultState() {
       height: null,
       gender: 'unset',
       showTips: true,
+      /* 组间休息结束时的提示音（震动与画面提示始终开启） */
+      restSound: true,
     },
     plans: [],
     workouts: [],

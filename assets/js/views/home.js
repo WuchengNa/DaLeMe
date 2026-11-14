@@ -1,5 +1,6 @@
 /* 今日首页 */
 import {
+  activeElapsedSeconds,
   bodyWeightSeries,
   getActivePlan,
   getActiveWorkout,
@@ -82,13 +83,13 @@ export default function homeView(ctx) {
   const volumeUnit = fmtVolume(summary.volume).includes(' t') ? '吨' : 'kg';
 
   const resumeHtml = active
-    ? `<a class="resume-banner" href="#/workout">
-        <span class="resume-pulse">${icon('play', 17)}</span>
+    ? `<a class="resume-banner${active.pausedAt ? ' paused' : ''}" href="#/workout">
+        <span class="resume-pulse">${icon(active.pausedAt ? 'pause' : 'play', 17)}</span>
         <span class="resume-text">
-          <strong>训练进行中 · ${esc(active.dayName)}</strong>
-          <span>已开始 ${fmtDuration(Math.max(0, (Date.now() - new Date(active.startedAt).getTime()) / 1000), true)} · 点击继续记录</span>
+          <strong>${active.pausedAt ? '训练已暂停' : '训练进行中'} · ${esc(active.dayName)}</strong>
+          <span>${active.pausedAt ? '计时已经冻结，随时回来继续' : `已训练 ${fmtDuration(activeElapsedSeconds(active), true)} · 点击继续记录`}</span>
         </span>
-        <span class="btn btn-primary btn-sm">继续 ${icon('arrow-right', 14)}</span>
+        <span class="btn btn-primary btn-sm">${active.pausedAt ? '恢复' : '继续'} ${icon('arrow-right', 14)}</span>
       </a>`
     : '';
 
@@ -113,7 +114,7 @@ export default function homeView(ctx) {
         <div class="hero-actions">
           ${
             active
-              ? `<a class="btn btn-primary" href="#/workout">${icon('play', 16)} 继续训练</a>`
+              ? `<a class="btn btn-primary" href="#/workout">${icon('play', 16)} ${active.pausedAt ? '恢复训练' : '继续训练'}</a>`
               : `<button type="button" class="btn btn-primary" data-start-suggested>
                   ${icon('zap', 16)} ${suggestion ? `开始 · ${esc(suggestion.day.short || suggestion.day.name.split(' · ')[0])}` : activePlan ? '完善训练计划' : '创建训练计划'}
                 </button>`
@@ -250,7 +251,9 @@ export default function homeView(ctx) {
       <div class="home-greeting">
         <h1>${greeting()}，${esc(state.settings.userName || '训练者')}<em>。</em></h1>
         <p>${fmtDate(new Date())} · ${
-          active
+          active?.pausedAt
+            ? '有一场训练暂停中，随时可以继续'
+            : active
             ? '有一场训练还没结束'
             : summary.count >= goal
               ? '本周目标已达成，可以安排恢复'

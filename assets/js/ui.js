@@ -70,6 +70,9 @@ const PATHS = {
   'user-plus': '<circle cx="9.5" cy="8" r="3.6"/><path d="M3 20a6.5 6.5 0 0 1 13 0"/><path d="M18.5 7v6M15.5 10h6"/>',
   'user-check': '<circle cx="9.5" cy="8" r="3.6"/><path d="M3 20a6.5 6.5 0 0 1 13 0"/><path d="m15.8 10.2 2 2 3.7-4"/>',
   quote: '<path d="M4 6h16v12H4z"/><path d="M8 10h8M8 14h5"/>',
+  bell: '<path d="M18 9a6 6 0 1 0-12 0c0 5-2 6-2 6h16s-2-1-2-6z"/><path d="M10 20a2.2 2.2 0 0 0 4 0"/>',
+  'volume-on': '<path d="M4 9v6h3l5 4V5L7 9H4z"/><path d="M16 8.5a5 5 0 0 1 0 7M18.5 6a8.5 8.5 0 0 1 0 12"/>',
+  'volume-off': '<path d="M4 9v6h3l5 4V5L7 9H4z"/><path d="m16 9 5 6M21 9l-5 6"/>',
 };
 
 export function icon(name, size = 20, extra = '') {
@@ -242,6 +245,7 @@ export function openSheet({
   onClose,
   dismissible = true,
   className = '',
+  autoFocus = true,
 } = {}) {
   closeSheet(true);
   const root = document.getElementById('overlay-root');
@@ -297,10 +301,12 @@ export function openSheet({
   };
 
   if (onMount) onMount(sheet, close, closedPromise);
-  setTimeout(() => {
-    const focusEl = sheet.querySelector('[autofocus], input, select, textarea, button:not(.sheet-close)');
-    focusEl?.focus?.({ preventScroll: true });
-  }, 120);
+  if (autoFocus) {
+    setTimeout(() => {
+      const focusEl = sheet.querySelector('[autofocus], input, select, textarea, button:not(.sheet-close)');
+      focusEl?.focus?.({ preventScroll: true });
+    }, 120);
+  }
 
   return close;
 }

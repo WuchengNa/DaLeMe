@@ -28,6 +28,7 @@ import {
   fmtWeight,
   WEEKDAYS,
 } from '../utils.js';
+import { feelInfo } from '../data.js';
 
 export default function historyDetailView(ctx) {
   const workout = getWorkout(ctx.id);
@@ -75,6 +76,7 @@ export default function historyDetailView(ctx) {
         (acc, s) => Math.max(acc, Number(s.weight) || 0),
         0,
       );
+      const feel = feelInfo(exercise.feel);
       return `<section class="card detail-exercise">
         <div class="detail-exercise-head">
           ${exerciseGlyph(exercise.muscle, 'sm')}
@@ -87,6 +89,13 @@ export default function historyDetailView(ctx) {
         <div class="set-chip-list">
           ${doneSets.map((set, index) => setChip(set, index)).join('')}
         </div>
+        ${feel || exercise.feelNote
+          ? `<div class="detail-feel">
+              <span class="feel-caption">${icon('heart', 13)} 动作感受</span>
+              ${feel ? `<span class="feel-tag" style="--feel:${feel.color};--feel-soft:${feel.soft}"><i></i>${feel.label}</span>` : ''}
+              ${exercise.feelNote ? `<span class="feel-quote">${esc(exercise.feelNote)}</span>` : ''}
+            </div>`
+          : ''}
         ${exercise.note ? `<div class="exercise-note" style="margin:10px 0 0">${icon('note', 13)}<span>${esc(exercise.note)}</span></div>` : ''}
       </section>`;
     })
@@ -139,9 +148,10 @@ export default function historyDetailView(ctx) {
       '',
       ...doneExercises.map((exercise) => {
         const doneSets = exercise.sets.filter((set) => set.done);
+        const feel = feelInfo(exercise.feel);
         return `${exercise.name}：${doneSets
           .map((set) => (Number(set.weight) > 0 ? `${set.weight}kg×${set.reps}` : `${set.reps}次`))
-          .join(' / ')}`;
+          .join(' / ')}${feel ? `（感受：${feel.label}）` : ''}`;
       }),
     ];
     copyText(lines.join('\n'))

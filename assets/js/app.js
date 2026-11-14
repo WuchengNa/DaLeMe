@@ -222,7 +222,7 @@ function renderChrome() {
     </a>
     <div class="sidebar-action">
       <button type="button" class="btn btn-primary btn-block" data-quick-start>
-        ${icon(active ? 'play' : 'zap', 17)} ${active ? '继续训练' : '开始训练'}
+        ${icon(active ? (active.pausedAt ? 'pause' : 'play') : 'zap', 17)} ${active ? (active.pausedAt ? '训练已暂停' : '继续训练') : '开始训练'}
       </button>
       <div class="sidebar-goal">
         <span>本周目标</span>
@@ -257,7 +257,7 @@ function renderChrome() {
   const mobileItems = [
     { key: 'home', label: '今日', icon: 'home', path: '/' },
     { key: 'square', label: '广场', icon: 'square', path: '/square' },
-    { key: 'workout', label: active ? '继续' : '开始', icon: 'zap', path: '/workout', center: true },
+    { key: 'workout', label: active ? (active.pausedAt ? '暂停中' : '继续') : '开始', icon: active?.pausedAt ? 'pause' : 'zap', path: '/workout', center: true },
     { key: 'plans', label: '计划', icon: 'plans', path: '/plans' },
     { key: 'history', label: '记录', icon: 'history', path: '/history' },
   ];
@@ -266,7 +266,7 @@ function renderChrome() {
     .map((item) => {
       if (item.center) {
         return `<button type="button" class="bottom-item center${currentKey === 'workout' ? ' active' : ''}" data-quick-start>
-          <span class="center-btn">${icon(active ? 'play' : 'plus', 21)}</span>
+          <span class="center-btn">${icon(active ? (active.pausedAt ? 'pause' : 'play') : 'plus', 21)}</span>
           <span>${item.label}</span>
         </button>`;
       }

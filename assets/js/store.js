@@ -479,7 +479,60 @@ export function buildActiveWorkout(plan, day) {
     exercises,
     notes: '',
     rest: null,
+    /* 暂停：pausedAt 有值时训练与组间休息都冻结，pausedTotal 累计已暂停秒数 */
+    pausedAt: null,
+    pausedTotal: 0,
   };
+}
+
+/** 训练净时长（秒）：开始到现在，扣掉所有暂停时间 */
+export function activeElapsedSeconds(workout = state.activeWorkout, now = Date.now()) {
+  if (!workout?.startedAt) return 0;
+  const started = new Date(workout.startedAt).getTime();
+  if (!Number.isFinite(started)) return 0;
+  let pausedMs = (Number(workout.pausedTotal) || 0) * 1000;
+  if (workout.pausedAt) {
+    const pausedAt = new Date(workout.pausedAt).getTime();
+    if (Number.isFinite(pausedAt)) pausedMs += Math.max(0, now - pausedAt);
+  }
+  return Math.max(0, Math.floor((now - started - pausedMs) / 1000));
+}
+
+export function isWorkoutPaused(workout = state.activeWorkout) {
+  return Boolean(workout?.pausedAt);
+}
+
+/** 暂停训练：冻结计时与正在进行的组间休息 */
+export function pauseActiveWorkout() {
+  const active = state.activeWorkout;
+  if (!active || active.pausedAt) return active;
+  active.pausedAt = new Date().toISOString();
+  if (active.rest?.endAt) {
+    active.rest.remainingMs = Math.max(0, new Date(active.rest.endAt).getTime() - Date.now());
+    active.rest.endAt = null;
+  }
+  saveState();
+  return active;
+}
+
+/** 恢复训练：把暂停时长记入 pausedTotal，并接着走完剩下的休息时间 */
+export function resumeActiveWorkout() {
+  const active = state.activeWorkout;
+  if (!active?.pausedAt) return active;
+  const pausedMs = Math.max(0, Date.now() - new Date(active.pausedAt).getTime());
+  active.pausedTotal = (Number(active.pausedTotal) || 0) + Math.round(pausedMs / 1000);
+  active.pausedAt = null;
+  if (active.rest) {
+    const rest = active.rest;
+    const left = Number.isFinite(Number(rest.remainingMs))
+      ? Math.max(0, Number(rest.remainingMs))
+      : Math.max(1, Number(rest.duration) || 60) * 1000;
+    rest.endAt = new Date(Date.now() + left).toISOString();
+    rest.duration = Math.max(1, Math.ceil((Number(rest.duration) || left / 1000)));
+    delete rest.remainingMs;
+  }
+  saveState();
+  return active;
 }
 
 export function startWorkout(plan, day) {
@@ -509,13 +562,11 @@ export function finishActiveWorkout(notes = '') {
     ...active,
     notes: notes || active.notes || '',
     finishedAt: now.toISOString(),
-    durationSec: Math.max(
-      60,
-      Math.round((now.getTime() - new Date(active.startedAt).getTime()) / 1000),
-    ),
+    durationSec: Math.max(60, activeElapsedSeconds(active, now.getTime())),
     totalVolume: stats.volume,
     totalSets: stats.sets,
     rest: undefined,
+    pausedAt: null,
   };
   state.activeWorkout = null;
   state.workouts.unshift(workout);

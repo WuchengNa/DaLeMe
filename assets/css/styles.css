@@ -2205,6 +2205,20 @@ body.sheet-open #toast-root {
   flex: none;
 }
 
+.resume-banner.paused {
+  background: linear-gradient(100deg, rgba(146, 123, 107, 0.14), rgba(146, 123, 107, 0.03));
+  border-color: var(--line-strong);
+}
+
+.resume-banner.paused .resume-pulse {
+  background: var(--surface-3);
+  color: var(--muted);
+}
+
+.resume-banner.paused .resume-pulse::after {
+  display: none;
+}
+
 .resume-pulse::after {
   content: '';
   position: absolute;
@@ -3607,6 +3621,16 @@ button.add-plan-card {
   background: var(--accent-soft);
 }
 
+.set-remove {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.set-remove:hover {
+  color: var(--red);
+  background: var(--red-soft);
+}
+
 .set-hint {
   font-size: 9.5px;
   color: var(--muted);
@@ -3738,6 +3762,416 @@ button.add-plan-card {
   padding: 0 9px;
   font-size: 11px;
   border-radius: 8px;
+}
+
+/* 休息倒计时最后 10 秒：整块呼吸提醒 */
+.rest-dock.urgent {
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+  animation: rest-urgent 0.9s ease-in-out infinite;
+}
+
+.rest-dock.urgent .rest-time {
+  color: var(--accent);
+}
+
+@keyframes rest-urgent {
+  0%,
+  100% {
+    box-shadow: 0 22px 50px -18px rgba(0, 0, 0, 0.8), 0 0 0 0 var(--accent-soft);
+  }
+  50% {
+    box-shadow: 0 22px 50px -18px rgba(0, 0, 0, 0.8), 0 0 0 7px var(--accent-soft);
+  }
+}
+
+/* 休息结束的强提示层 */
+.rest-alert {
+  position: fixed;
+  inset: 0;
+  z-index: 160;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  opacity: 0;
+  transition: opacity 0.2s var(--ease);
+}
+
+.rest-alert.show {
+  opacity: 1;
+}
+
+.rest-alert-flash {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 46%, rgba(255, 176, 86, 0.42), rgba(255, 176, 86, 0.1) 46%, transparent 72%),
+    color-mix(in srgb, var(--bg) 80%, transparent);
+  backdrop-filter: blur(14px);
+  animation: rest-flash 1.05s ease-in-out 3;
+}
+
+@keyframes rest-flash {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.rest-alert-card {
+  position: relative;
+  width: min(340px, 100%);
+  text-align: center;
+  padding: 26px 22px 20px;
+  border-radius: 26px;
+  background: var(--surface);
+  border: 1px solid color-mix(in srgb, var(--accent) 50%, var(--line-strong));
+  box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.55);
+  transform: scale(0.92);
+  transition: transform 0.3s var(--ease);
+  animation: rest-pulse 1.1s ease-in-out 4;
+}
+
+.rest-alert.show .rest-alert-card {
+  transform: none;
+}
+
+@keyframes rest-pulse {
+  0%,
+  100% {
+    box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.55), 0 0 0 0 var(--accent-soft);
+  }
+  50% {
+    box-shadow: 0 30px 80px -30px rgba(0, 0, 0, 0.55), 0 0 0 8px var(--accent-soft);
+  }
+}
+
+.rest-alert-glyph {
+  display: grid;
+  place-items: center;
+  width: 66px;
+  height: 66px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  color: var(--accent-ink);
+  background: var(--accent);
+  box-shadow: 0 0 0 10px var(--accent-soft);
+  animation: rest-bell 1.1s ease-in-out 4;
+}
+
+@keyframes rest-bell {
+  0%,
+  100% {
+    transform: rotate(-7deg);
+  }
+  50% {
+    transform: rotate(7deg);
+  }
+}
+
+.rest-alert-card h2 {
+  font-family: var(--font-head);
+  font-size: 24px;
+  letter-spacing: -0.02em;
+}
+
+.rest-alert-card p {
+  margin: 6px 0 18px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.rest-alert-card .btn {
+  width: 100%;
+}
+
+.rest-alert-hint {
+  display: block;
+  margin-top: 10px;
+  font-size: 10px;
+  color: var(--muted);
+  opacity: 0.8;
+}
+
+/* 暂停训练 */
+.workout-pause-btn {
+  color: var(--muted);
+}
+
+.workout-pause-btn.paused {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.live-dot.paused {
+  background: var(--muted);
+  box-shadow: 0 0 0 3px var(--line-strong);
+  animation: none;
+}
+
+.pause-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: color-mix(in srgb, var(--bg) 68%, transparent);
+  backdrop-filter: blur(18px);
+  animation: fade-in 0.2s var(--ease);
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.pause-card {
+  width: min(370px, 100%);
+  text-align: center;
+  padding: 26px 22px 18px;
+  border-radius: 24px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  box-shadow: var(--shadow);
+  animation: pause-in 0.28s var(--ease);
+}
+
+@keyframes pause-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.pause-glyph {
+  display: grid;
+  place-items: center;
+  width: 62px;
+  height: 62px;
+  margin: 0 auto 12px;
+  border-radius: 50%;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 34%, transparent);
+}
+
+.pause-card h2 {
+  font-family: var(--font-head);
+  font-size: 20px;
+  letter-spacing: -0.01em;
+}
+
+.pause-card > p {
+  margin: 5px 0 16px;
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.pause-stats {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.pause-stats > div {
+  flex: 1;
+  padding: 10px 8px;
+  border-radius: 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+
+.pause-stats strong {
+  display: block;
+  font-family: var(--font-num);
+  font-size: 19px;
+  letter-spacing: 0.02em;
+}
+
+.pause-stats span {
+  font-size: 9.5px;
+  color: var(--muted);
+}
+
+.pause-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.pause-links button {
+  color: var(--muted);
+  font-size: 11.5px;
+  padding: 4px 2px;
+}
+
+.pause-links button:hover {
+  color: var(--accent);
+}
+
+/* 动作感受 */
+.exercise-feel {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  width: 100%;
+  padding: 10px 15px 12px;
+  border-top: 1px dashed var(--line);
+  color: var(--muted);
+  font-size: 10.5px;
+  text-align: left;
+  transition: background 0.16s;
+}
+
+.exercise-feel:hover {
+  background: var(--surface-2);
+}
+
+.feel-caption {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.feel-caption .icon {
+  color: var(--orange);
+}
+
+.feel-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px 2px 7px;
+  border-radius: 99px;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--feel, var(--accent));
+  background: var(--feel-soft, var(--accent-soft));
+  border: 1px solid color-mix(in srgb, var(--feel, var(--accent)) 36%, transparent);
+}
+
+.feel-tag i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.feel-tag.empty {
+  color: var(--muted);
+  font-weight: 500;
+  background: transparent;
+  border-style: dashed;
+  border-color: var(--line-strong);
+}
+
+.feel-quote {
+  flex: 1 1 120px;
+  min-width: 0;
+  color: var(--text-2);
+  font-size: 10.5px;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.feel-edit {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  opacity: 0.85;
+  white-space: nowrap;
+}
+
+.exercise-feel:hover .feel-edit {
+  color: var(--accent);
+  opacity: 1;
+}
+
+.feel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.feel-option {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  padding: 11px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  text-align: left;
+  transition: 0.16s var(--ease);
+}
+
+.feel-option i {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-bottom: 5px;
+  background: var(--feel, var(--accent));
+  box-shadow: 0 0 0 4px var(--feel-soft, var(--accent-soft));
+}
+
+.feel-option strong {
+  font-size: 13px;
+  color: var(--text);
+}
+
+.feel-option span {
+  font-size: 9.5px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.feel-option:hover {
+  border-color: color-mix(in srgb, var(--feel, var(--accent)) 40%, var(--line));
+}
+
+.feel-option.active {
+  border-color: var(--feel, var(--accent));
+  background: var(--feel-soft, var(--accent-soft));
+  box-shadow: 0 0 0 2px var(--feel-soft, var(--accent-soft));
+}
+
+.detail-feel {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 10px;
+  padding: 9px 11px;
+  border-radius: 11px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+}
+
+.detail-feel .feel-quote {
+  flex-basis: 100%;
+  font-size: 11px;
 }
 
 /* Finish sheet */
@@ -8176,3 +8610,24 @@ button.user-stat:hover b {
   }
 }
 
+
+/* ============================================================
+   移动端表单控件字号
+   iOS Safari 对 font-size < 16px 的输入框会在聚焦时自动放大页面，
+   输入框在打字过程中被重绘（例如完成一组后刷新列表）时还会卡在
+   放大状态不还原。统一抬到 16px 可以从根上避免这个现象。
+   ============================================================ */
+@media (max-width: 820px) {
+  input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='file']):not([type='color']),
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+
+  .set-input,
+  .set-rpe {
+    padding-left: 2px;
+    padding-right: 2px;
+    letter-spacing: -0.01em;
+  }
+}

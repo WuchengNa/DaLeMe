@@ -125,13 +125,15 @@ export default function statsView() {
     </div>`,
     mount(root) {
       paint();
+      const controller = new AbortController();
       root.addEventListener('click', (event) => {
         const button = event.target.closest('[data-period]');
         if (!button) return;
         period = Number(button.dataset.period);
         root.querySelectorAll('[data-period]').forEach((b) => b.classList.toggle('active', b === button));
         paint();
-      });
+      }, { signal: controller.signal });
+      return () => controller.abort();
     },
   };
 }

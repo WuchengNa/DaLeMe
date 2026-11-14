@@ -334,6 +334,8 @@ export default function planEditorView(ctx) {
     html: '<div id="plan-editor-root"></div>',
     mount(root) {
       paint();
+      const controller = new AbortController();
+      const { signal } = controller;
       const beforeUnload = (event) => {
         if (!dirty) return;
         event.preventDefault();
@@ -434,7 +436,7 @@ export default function planEditorView(ctx) {
           dirty = true;
           paint();
         }
-      });
+      }, { signal });
 
       root.addEventListener('input', (event) => {
         const el = event.target;
@@ -463,10 +465,13 @@ export default function planEditorView(ctx) {
             dirty = true;
           }
         }
-      });
+      }, { signal });
 
       window.addEventListener('beforeunload', beforeUnload);
-      return () => window.removeEventListener('beforeunload', beforeUnload);
+      return () => {
+        controller.abort();
+        window.removeEventListener('beforeunload', beforeUnload);
+      };
     },
   };
 }
